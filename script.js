@@ -1,100 +1,98 @@
+// Definimos las preguntas y respuestas para el memorama
 const pairs = [
-    { q: "Son aquellos fenómenos en los que no podemos predecir su resultado...", a: "Fenómenos aleatorios" },
-    { q: "Son aquellos fenómenos en los que podemos predecir su resultado...", a: "Fenómenos deterministas" },
-    { q: "Es un proceso aleatorio, razón entre casos favorables y posibles.", a: "Frecuencia relativa" },
-    { q: "Fórmula de probabilidad clásica", a: "P(A) = Casos favorables / Casos posibles" },
-    { q: "Es el conjunto de todos los posibles resultados de un experimento.", a: "Espacio muestral" },
-    { q: "Evento que consiste en exactamente un resultado.", a: "Evento simple" },
-    { q: "Si ocurre un evento, el otro no puede ocurrir al mismo tiempo.", a: "Eventos mutuamente excluyentes" },
-    { q: "La probabilidad de que un evento ocurra dado que otro ha ocurrido.", a: "Probabilidad condicional" },
+    { type: "p1", text: "Son aquellos fenómenos en los que no podemos predecir su resultado." },
+    { type: "p1", text: "Fenómenos aleatorios" },
+
+    { type: "p2", text: "Es un proceso aleatorio, razón entre el número de casos favorables y el número de casos posibles." },
+    { type: "p2", text: "Probabilidad clásica" },
+
+    { type: "p3", text: "Es la estructura axiomática de la probabilidad, se basa en teoría de conjuntos." },
+    { type: "p3", text: "Teoría de conjuntos" },
+
+    { type: "p4", text: "Si cuando ocurre un evento, el otro no puede ocurrir y viceversa." },
+    { type: "p4", text: "Eventos mutuamente excluyentes" },
+
+    { type: "p5", text: "Es cualquier acción o proceso cuyo resultado está sujeto a incertidumbre." },
+    { type: "p5", text: "Experimento aleatorio" },
+
+    { type: "p6", text: "Es la recopilación de resultados contenidos en el espacio muestral." },
+    { type: "p6", text: "Evento" }
 ];
 
-let cards = [];
-let flippedCards = [];
+// Barajar las cartas aleatoriamente
+pairs.sort(() => Math.random() - 0.5);
+
+const board = document.getElementById("board");
+let selectedCards = [];
 let matchedPairs = 0;
 
-// Duplicamos las preguntas y respuestas para hacer las cartas
-pairs.forEach(pair => {
-    cards.push({ text: pair.q, type: "question" });
-    cards.push({ text: pair.a, type: "answer" });
-});
+// Función para crear las cartas en el tablero
+function createBoard() {
+    pairs.forEach((pair, index) => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.dataset.index = index;
+        card.dataset.type = pair.type;
 
-// Mezclamos las cartas
-cards = cards.sort(() => Math.random() - 0.5);
+        const cardInner = document.createElement("div");
+        cardInner.classList.add("card-inner");
 
-const board = document.getElementById("game-board");
+        const cardFront = document.createElement("div");
+        cardFront.classList.add("card-front");
+        cardFront.textContent = "?";
 
-// Creación de las cartas en el tablero
-cards.forEach((cardData, index) => {
-    const card = document.createElement("div");
-    card.classList.add("card");
-    card.dataset.index = index;
-    card.dataset.type = cardData.type;
-    
-    const cardInner = document.createElement("div");
-    cardInner.classList.add("card-inner");
+        const cardBack = document.createElement("div");
+        cardBack.classList.add("card-back");
+        cardBack.textContent = pair.text;
 
-    const cardFront = document.createElement("div");
-    cardFront.classList.add("card-front");
-    cardFront.textContent = "?";
+        cardInner.appendChild(cardFront);
+        cardInner.appendChild(cardBack);
+        card.appendChild(cardInner);
 
-    const cardBack = document.createElement("div");
-    cardBack.classList.add("card-back");
-    cardBack.textContent = cardData.text;
+        card.addEventListener("click", () => flipCard(card));
+        board.appendChild(card);
+    });
+}
 
-    cardInner.appendChild(cardFront);
-    cardInner.appendChild(cardBack);
-    card.appendChild(cardInner);
-    
-    card.addEventListener("click", flipCard);
-    board.appendChild(card);
-});
+// Función para voltear la carta
+function flipCard(card) {
+    if (!card.classList.contains("flipped") && selectedCards.length < 2) {
+        card.classList.add("flipped");
+        selectedCards.push(card);
 
-function flipCard() {
-    if (flippedCards.length >= 2) return;
-
-    const card = this;
-    const index = card.dataset.index;
-
-    if (flippedCards.some(c => c.dataset.index === index)) return;
-
-    card.textContent = cards[index].text;
-    card.classList.add("flipped");
-
-    flippedCards.push(card);
-
-    if (flippedCards.length === 2) {
-        setTimeout(checkMatch, 800);
+        if (selectedCards.length === 2) {
+            checkMatch();
+        }
     }
 }
 
+// Función para verificar si las cartas coinciden
 function checkMatch() {
-    const [card1, card2] = flippedCards;
-    const index1 = card1.dataset.index;
-    const index2 = card2.dataset.index;
+    const [card1, card2] = selectedCards;
 
-    const isMatch = (
-        (cards[index1].type === "question" && cards[index2].type === "answer") ||
-        (cards[index1].type === "answer" && cards[index2].type === "question")
-    ) && pairs.some(p => 
-        (p.q === cards[index1].text && p.a === cards[index2].text) ||
-        (p.q === cards[index2].text && p.a === cards[index1].text)
-    );
-
-    if (isMatch) {
+    if (card1.dataset.type === card2.dataset.type) {
+        // Si coinciden, las dejamos volteadas
         card1.classList.add("matched");
         card2.classList.add("matched");
         matchedPairs++;
 
-        if (matchedPairs === pairs.length) {
-            setTimeout(() => alert("¡Ganaste! Has encontrado todas las parejas."), 500);
+        // Si el usuario encuentra todas las parejas, mostramos un mensaje
+        if (matchedPairs === pairs.length / 2) {
+            setTimeout(() => {
+                alert("¡Felicidades! Has encontrado todas las parejas.");
+            }, 500);
         }
     } else {
-        card1.textContent = "?";
-        card2.textContent = "?";
-        card1.classList.remove("flipped");
-        card2.classList.remove("flipped");
+        // Si no coinciden, las volteamos de nuevo después de un tiempo
+        setTimeout(() => {
+            card1.classList.remove("flipped");
+            card2.classList.remove("flipped");
+        }, 1000);
     }
 
-    flippedCards = [];
+    // Reiniciamos la selección
+    selectedCards = [];
 }
+
+// Iniciar el juego
+createBoard();
