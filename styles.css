@@ -10,11 +10,13 @@ h1 {
 
 #board {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 1fr); /* 4 columnas */
     gap: 10px;
-    max-width: 600px;
-    margin: 20px auto;
+    max-width: 400px; /* Ajustar tamaño */
+    margin: 20px auto; /* Centrar */
+    justify-content: center; /* Centrar horizontalmente */
 }
+
 
 .card {
     width: 100px;
