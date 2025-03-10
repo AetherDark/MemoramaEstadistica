@@ -8,7 +8,7 @@ h1 {
     color: #333;
 }
 
-#game-board {
+#board {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
