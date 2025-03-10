@@ -30,7 +30,22 @@ cards.forEach((cardData, index) => {
     card.classList.add("card");
     card.dataset.index = index;
     card.dataset.type = cardData.type;
-    card.textContent = "?";
+    
+    const cardInner = document.createElement("div");
+    cardInner.classList.add("card-inner");
+
+    const cardFront = document.createElement("div");
+    cardFront.classList.add("card-front");
+    cardFront.textContent = "?";
+
+    const cardBack = document.createElement("div");
+    cardBack.classList.add("card-back");
+    cardBack.textContent = cardData.text;
+
+    cardInner.appendChild(cardFront);
+    cardInner.appendChild(cardBack);
+    card.appendChild(cardInner);
+    
     card.addEventListener("click", flipCard);
     board.appendChild(card);
 });
